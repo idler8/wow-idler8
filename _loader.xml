@@ -1,0 +1,13 @@
+<Ui xmlns='http://www.blizzard.com/wow/ui/'>
+	<Script file='Libs\Core.lua'/>
+	<Script file='Libs\DB.lua'/>
+	<Script file='Libs\Debug.lua'/>
+	<Script file='Libs\Event.lua'/>
+	<Script file='Libs\Frame.lua'/>
+	<Script file='Feature\Vender.lua'/>
+	<Script file='Feature\Chromie.lua'/>
+	<Script file='Feature\AutoLoot.lua'/>
+	<Script file='Feature\AutoQuest.lua'/>
+	<!-- <Include file='Feature\PetBattles\_loader.xml'/> -->
+	<Include file='Feature\Container\_loader.xml'/>
+</Ui>

@@ -1,0 +1,9 @@
+## Title: |cffcccccc闲人插件|r
+## Notes: 国人自产的魔兽插件集
+## Author: 闲人老师
+## Version: 1.0.0
+## SavedVariables: iDB
+## Interface: 10000
+
+_loader.xml
+
