@@ -19,7 +19,6 @@ local function Sortable(BagFrame)
     end)
     SortButton:RegisterForClicks("LeftButtonUp","RightButtonUp");
     SortButton:SetScript('OnClick', function(self, button)
-        print('Button', button)
         if button == 'RightButton' then
             PlaySound(SOUNDKIT.IG_MAINMENU_OPTION);
             DepositReagentBank();

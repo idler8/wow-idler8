@@ -34,12 +34,10 @@ end
 
 local _E = Core:Lib('Event')
 _E:AddListener('GOSSIP_SHOW', function(...)
-    print('GOSSIP_SHOW',...)
     if IsLeftShiftKeyDown() then return end;
     Quest:Select()
 end)
 _E:AddListener('QUEST_PROGRESS', function(...)
-    print('QUEST_PROGRESS',...)
     if IsLeftShiftKeyDown() then return end;
     if GetNumQuestCurrencies() > 0 then return end;
     for i = 1, GetNumQuestItems() do
@@ -50,32 +48,27 @@ _E:AddListener('QUEST_PROGRESS', function(...)
     if IsQuestCompletable() then CompleteQuest() end
 end)
 _E:AddListener('QUEST_COMPLETE', function(...)
-    print('QUEST_COMPLETE',...)
     if IsLeftShiftKeyDown() then return end;
     if GetNumQuestChoices() > 0 then return end;
     if GetQuestMoneyToGet() > 0 then return end;
     GetQuestReward(QuestFrameRewardPanel.itemChoice)
 end)
 _E:AddListener('QUEST_DETAIL', function(...)
-    print('QUEST_DETAIL',...)
     if IsLeftShiftKeyDown() then return end;
     if Black:IsFilter(GetQuestID()) then return end;
     AcceptQuest()
 end)
 _E:AddListener('QUEST_REMOVED', function(questID, wasReplayQuest)
-    print('QUEST_REMOVED', questID)
     if IsLeftShiftKeyDown() then return end;
     if C_QuestLog.IsWorldQuest(questID) then return end;
     Black:Filter(questID)
 end)
 _E:AddListener('QUEST_ACCEPTED', function(questID)
-    print('QUEST_ACCEPTED', questID)
     if IsLeftShiftKeyDown() then return end;
     if C_QuestLog.IsWorldQuest(questID) then return end;
     Black:UnFilter(questID)
 end)
 _E:AddListener('QUEST_GREETING', function(...)
-    print('QUEST_GREETING',...)
     if IsLeftShiftKeyDown() then return end;
     Quest:Greeting()
 end)

@@ -81,7 +81,6 @@ local function getRolePet(petOwner, petIndex)
                 return theRolePetAbilitys
             else
                 -- todo 属性映射
-                print('key',key)
                 return C_PetBattles.GetStateValue(petOwner, petIndex, key)
             end
         end

@@ -19,7 +19,6 @@ function DB:Filter(key)
 end
 local player, server = UnitFullName('player')
 local _, faction = UnitFactionGroup('player')
-print(player,server)
 function DB:Storage(bagID, slotID, itemID, quality)
     -- iDB['Storage'][server][faction][player][bagID][slotID] = {itemID, quality}
 end

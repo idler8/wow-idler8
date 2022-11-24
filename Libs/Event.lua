@@ -39,19 +39,19 @@ frame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 
-local _E = Event
-print('ADDON_RUNING')
+-- local _E = Event
+-- print('ADDON_RUNING')
 -- _E:AddListener('BAG_UPDATE', function(...) print('BAG_UPDATE', ...); end)
 -- _E:AddListener('BAG_UPDATE_DELAYED', function(...) print('BAG_UPDATE_DELAYED', ...); end)
 -- _E:AddListener('BAG_UPDATE_COOLDOWN', function(...) print('BAG_UPDATE_COOLDOWN', ...); end)
 -- _E:AddListener('SPELLS_CHANGED', function(...) print('SPELLS_CHANGED', ...); end)
-_E:AddListener('PLAYER_ENTERING_WORLD', function(...) print('PLAYER_ENTERING_WORLD', ...); end)
-_E:AddListener('PLAYER_REGEN_DISABLED', function(...) print('PLAYER_REGEN_DISABLED', ...); end)
-_E:AddListener('PLAYER_REGEN_ENABLED', function(...) print('PLAYER_REGEN_ENABLED', ...); end)
-_E:AddListener('PLAYERBANKBAGSLOTS_CHANGED', function(...) print('PLAYERBANKBAGSLOTS_CHANGED', ...); end)
-_E:AddListener('REAGENTBANK_UPDATE', function(...) print('REAGENTBANK_UPDATE', ...); end)
-_E:AddListener('PLAYERBANKSLOTS_CHANGED', function(...) print('PLAYERBANKSLOTS_CHANGED', ...); end)
-_E:AddListener('PLAYERREAGENTBANKSLOTS_CHANGED', function(...) print('PLAYERREAGENTBANKSLOTS_CHANGED', ...); end)
+-- _E:AddListener('PLAYER_ENTERING_WORLD', function(...) print('PLAYER_ENTERING_WORLD', ...); end)
+-- _E:AddListener('PLAYER_REGEN_DISABLED', function(...) print('PLAYER_REGEN_DISABLED', ...); end)
+-- _E:AddListener('PLAYER_REGEN_ENABLED', function(...) print('PLAYER_REGEN_ENABLED', ...); end)
+-- _E:AddListener('PLAYERBANKBAGSLOTS_CHANGED', function(...) print('PLAYERBANKBAGSLOTS_CHANGED', ...); end)
+-- _E:AddListener('REAGENTBANK_UPDATE', function(...) print('REAGENTBANK_UPDATE', ...); end)
+-- _E:AddListener('PLAYERBANKSLOTS_CHANGED', function(...) print('PLAYERBANKSLOTS_CHANGED', ...); end)
+-- _E:AddListener('PLAYERREAGENTBANKSLOTS_CHANGED', function(...) print('PLAYERREAGENTBANKSLOTS_CHANGED', ...); end)
 
 -- _E:AddListener('BAG_NEW_ITEMS_UPDATED', function(...) print('BAG_NEW_ITEMS_UPDATED', ...); end)
 -- _E:AddListener('BAG_OVERFLOW_WITH_FULL_INVENTORY', function(...) print('BAG_OVERFLOW_WITH_FULL_INVENTORY', ...); end)
