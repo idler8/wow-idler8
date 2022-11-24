@@ -5,13 +5,13 @@ local Black = Core:Lib('DB'):Filter('VenderBlackList')
 function Vender:RepairAllItems()
     RepairAllItems(true)
 end
-function Vender:SellAllItems(unsafe)
+function Vender:SellAllItems(filter, unsafe)
     local totalNumber = 0
     local bagNumSlots, bag, slot, price
     for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
         bagNumSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, bagNumSlots do
-            if Vender:Sell(bag, slot) then
+            if  Vender:Sell(bag, slot) then
                 totalNumber = totalNumber + 1
                 if not unsafe and totalNumber >= 12 then
                     return
@@ -56,8 +56,18 @@ end
 -- TODO 过滤购回的物品，根据当前可回购的数量判断回购
 local _E = Core:Lib('Event');
 _E:AddListener('MERCHANT_SHOW', function()
+    local filter = {}
+    for index, esID in pairs(C_EquipmentSet.GetEquipmentSetIDs()) do
+        local locations =  C_EquipmentSet.GetItemLocations(esID)
+        for i,v in pairs(locations) do
+            local slot,bag = select(5,EquipmentManager_UnpackLocation(v))
+            if bag and slot then
+                filter[bag..' '..slot] = true
+            end
+        end
+    end
     Vender:RepairAllItems()
-    Vender:SellAllItems()
+    Vender:SellAllItems(filter)
 end)
 _E:AddListener('MERCHANT_UPDATE', function()
     Black:UnFilter(C_MerchantFrame.GetBuybackItemID(GetNumBuybackItems()))
