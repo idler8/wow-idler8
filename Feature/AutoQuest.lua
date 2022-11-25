@@ -62,10 +62,16 @@ _E:AddListener('QUEST_GREETING', function(...)
     if IsLeftShiftKeyDown() then return end;
     Quest:Greeting()
 end)
-hooksecurefunc('CloseQuest', function()
-    print('CloseQuest')
+hooksecurefunc('DeclineQuest',function()
     if IsLeftShiftKeyDown() then return end;
     local questID = GetQuestID()
+    if not questID then return end
+    if C_QuestLog.IsWorldQuest(questID) then return end;
+    Black:Filter(questID)
+end)
+hooksecurefunc(C_QuestLog, 'AbandonQuest', function()
+    if IsLeftShiftKeyDown() then return end;
+    local questID = C_QuestLog.GetSelectedQuest()
     if not questID then return end
     if C_QuestLog.IsWorldQuest(questID) then return end;
     Black:Filter(questID)
