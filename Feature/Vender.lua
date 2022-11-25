@@ -58,7 +58,7 @@ local _E = Core:Lib('Event');
 _E:AddListener('MERCHANT_SHOW', function()
     local filter = {}
     for index, esID in pairs(C_EquipmentSet.GetEquipmentSetIDs()) do
-        local locations =  C_EquipmentSet.GetItemLocations(esID)
+        local locations = C_EquipmentSet.GetItemLocations(esID)
         for i,v in pairs(locations) do
             local slot,bag = select(5,EquipmentManager_UnpackLocation(v))
             if bag and slot then

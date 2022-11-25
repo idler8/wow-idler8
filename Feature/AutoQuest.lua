@@ -58,8 +58,15 @@ _E:AddListener('QUEST_DETAIL', function(...)
     if Black:IsFilter(GetQuestID()) then return end;
     AcceptQuest()
 end)
-_E:AddListener('QUEST_REMOVED', function(questID, wasReplayQuest)
+_E:AddListener('QUEST_GREETING', function(...)
     if IsLeftShiftKeyDown() then return end;
+    Quest:Greeting()
+end)
+hooksecurefunc('CloseQuest', function()
+    print('CloseQuest')
+    if IsLeftShiftKeyDown() then return end;
+    local questID = GetQuestID()
+    if not questID then return end
     if C_QuestLog.IsWorldQuest(questID) then return end;
     Black:Filter(questID)
 end)
@@ -67,8 +74,4 @@ _E:AddListener('QUEST_ACCEPTED', function(questID)
     if IsLeftShiftKeyDown() then return end;
     if C_QuestLog.IsWorldQuest(questID) then return end;
     Black:UnFilter(questID)
-end)
-_E:AddListener('QUEST_GREETING', function(...)
-    if IsLeftShiftKeyDown() then return end;
-    Quest:Greeting()
 end)
