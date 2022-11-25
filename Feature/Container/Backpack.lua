@@ -35,7 +35,7 @@ function Backpack:Iterator()
         return bag;
     end
 end
-function Backpack:Initialize()
+function Backpack:CreateFrame()
     local Popup = CreateFrame("Frame", "_Container_Backpack", UIParent, "BackdropTemplate");
     Popup:SetBackdrop(BACKDROP_TUTORIAL_16_16)
     Popup:SetFrameStrata('HIGH')
@@ -49,6 +49,13 @@ function Backpack:Initialize()
     local Matrix = CreateFrame('Frame', nil, Popup);
     Matrix:SetAllPoints();
     Matrix:SetPoint("TOPLEFT", 8, -30);
+    function Backpack:CreateFrame()
+        return Popup, Matrix
+    end
+    return Backpack:CreateFrame()
+end
+function Backpack:Initialize()
+    local Popup, Matrix = Backpack:CreateFrame()
     for bagID in self:Iterator() do
         local bagContainer = Container:CreateContainer(bagID)
         bagContainer:SetParent(Matrix);

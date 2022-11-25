@@ -3,6 +3,7 @@ local Frame = Core:Lib('Frame');
 function Frame:Movable(frame)
     frame:EnableMouse(true)
     frame:SetMovable(true)
+    frame:SetClampedToScreen(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", function(self, button)
         frame:StartMoving()

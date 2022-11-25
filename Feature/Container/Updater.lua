@@ -6,6 +6,8 @@ local Updater = Core:Lib('Container.Updater')
 local Backpack = Core:Lib('Container.Backpack')
 local Bank = Core:Lib('Container.Bank')
 
+Backpack:CreateFrame()
+Bank:CreateFrame()
 local function Running()
     _E:AddListener('BAG_UPDATE', function(bagID)
         local bagContainer = Container:GetContainer(bagID)
@@ -73,7 +75,9 @@ local function Running()
     
     do
         local Popup, Matrix = Backpack:Create();
-        Popup:SetPoint("TOPRIGHT", -300, -60)
+        if not Popup:IsUserPlaced() then
+            Popup:SetPoint("TOPRIGHT", -300, -60)
+        end
         Popup:SetScript('OnShow', function()
             Backpack:Update();
         end)
