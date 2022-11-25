@@ -46,8 +46,7 @@ local function Running()
         bagContainer:SetShown(false)
     end)
     _D:replace(_G, 'ToggleBag',function(bagID)
-        local bagContainer = Container:GetContainer(bagID);
-        bagContainer:SetShown(not bagContainer:IsShown())
+        _G.ToggleAllBags()
     end)
     _E:AddListener('PLAYER_INTERACTION_MANAGER_FRAME_SHOW',function(type)
         if type == Enum.PlayerInteractionType.Banker then
