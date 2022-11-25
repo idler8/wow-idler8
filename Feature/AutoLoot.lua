@@ -27,3 +27,11 @@ end)
 _E:AddListener('LOOT_CLOSED', function(...)
     Loot.isOpened = false
 end)
+-- 关闭弹出窗
+function AlertFrame:AddAlertFrame(frame)
+    return
+end
+-- 隐藏对话大窗
+-- hooksecurefunc(TalkingHeadFrame, "PlayCurrent", function(self)
+-- 	self:Hide()
+-- end)
