@@ -8,13 +8,12 @@ local Backpack = Core:Lib('Container.Backpack')
 local Bank = Core:Lib('Container.Bank')
 
 local function Running()
-    if InCombatLockdown() then return _E:OnceListener('PLAYER_REGEN_ENABLED', Finish) end
+    if InCombatLockdown() then return _E:OnceListener('PLAYER_REGEN_ENABLED', Running) end
     local FRAME_THAT_OPENED_BAGS = nil
     _D:replace(_G, 'OpenAllBags', function(frame, forceUpdate)
         local Popup, Matrix = Backpack:Create();
         if Popup:IsShown() then return end;
         Popup:SetShown(true)
-        if(frame) then print(frame) end
         if (frame) then FRAME_THAT_OPENED_BAGS = frame:GetName() end
     end)
     _D:replace(_G, 'CloseAllBags', function(frame, forceUpdate)
