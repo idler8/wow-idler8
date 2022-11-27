@@ -11,7 +11,7 @@ function Vender:SellAllItems(filter, unsafe)
     for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
         bagNumSlots = C_Container.GetContainerNumSlots(bag)
         for slot = 1, bagNumSlots do
-            if  Vender:Sell(bag, slot) then
+            if not filter[bag..' '..slot] and Vender:Sell(bag, slot) then
                 totalNumber = totalNumber + 1
                 if not unsafe and totalNumber >= 12 then
                     return
@@ -53,7 +53,6 @@ function Vender:Sell(bag, slot)
      end;
     return isSafe
 end
--- TODO 过滤购回的物品，根据当前可回购的数量判断回购
 local _E = Core:Lib('Event');
 _E:AddListener('MERCHANT_SHOW', function()
     local filter = {}
