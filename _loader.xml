@@ -10,4 +10,5 @@
 	<Script file='Feature\AutoQuest.lua'/>
 	<!-- <Include file='Feature\PetBattles\_loader.xml'/> -->
 	<Include file='Feature\Container\_loader.xml'/>
+	<Script file='Feature\Tooltip.lua'/>
 </Ui>
