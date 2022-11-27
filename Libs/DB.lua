@@ -17,8 +17,17 @@ function DB:Filter(key)
    end
    return filter
 end
-local player, server = UnitFullName('player')
-local _, faction = UnitFactionGroup('player')
-function DB:Storage(bagID, slotID, itemID, quality)
-    -- iDB['Storage'][server][faction][player][bagID][slotID] = {itemID, quality}
+function DB:Account()
+     if not iDB.Accounts then iDB.Accounts = {} end
+     local name, server = UnitFullName('player')
+     local _, faction = UnitFactionGroup('player')
+     local key = server..":"..faction..":"..name;
+     if not iDB.Accounts[key] then
+          iDB.Accounts[key] = { server = server, faction = faction, name = name, bags={}, slots={} }
+     end
+     return iDB.Accounts[key]
+end
+function DB:Accounts()
+     if not iDB.Accounts then iDB.Accounts = {} end
+     return pairs(iDB.Accounts)
 end

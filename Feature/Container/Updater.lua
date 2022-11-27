@@ -1,26 +1,21 @@
 local ADDON_NAME, Core = ...
 local _E = Core:Lib('Event')
 local _D = Core:Lib('Debug')
+local Storage = Core:Lib('Container.Storage')
 local Container = Core:Lib('Container')
 local Updater = Core:Lib('Container.Updater')
 local Backpack = Core:Lib('Container.Backpack')
 local Bank = Core:Lib('Container.Bank')
 
-Backpack:CreateFrame()
-Bank:CreateFrame()
 local function Running()
-    _E:AddListener('BAG_UPDATE', function(bagID)
-        local bagContainer = Container:GetContainer(bagID)
-        if bagContainer then bagContainer._needUpdate = true end;
-    end)
+    if InCombatLockdown() then return _E:OnceListener('PLAYER_REGEN_ENABLED', Finish) end
     local FRAME_THAT_OPENED_BAGS = nil
     _D:replace(_G, 'OpenAllBags', function(frame, forceUpdate)
         local Popup, Matrix = Backpack:Create();
         if Popup:IsShown() then return end;
         Popup:SetShown(true)
-        if (frame and not FRAME_THAT_OPENED_BAGS) then
-            FRAME_THAT_OPENED_BAGS = frame:GetName();
-        end
+        if(frame) then print(frame) end
+        if (frame) then FRAME_THAT_OPENED_BAGS = frame:GetName() end
     end)
     _D:replace(_G, 'CloseAllBags', function(frame, forceUpdate)
         if (frame and frame:GetName() ~= FRAME_THAT_OPENED_BAGS) then return end
@@ -28,7 +23,7 @@ local function Running()
         local Popup, Matrix = Backpack:Create();
         Popup:SetShown(false)
     end)
-    _D:replace(_G, 'ToggleAllBags',function()
+    _D:replace(_G, 'ToggleAllBags',function(frame, forceUpdate)
         local Popup, Matrix = Backpack:Create();
         if Popup:IsShown() then
             _G.CloseAllBags()
@@ -54,76 +49,67 @@ local function Running()
         if type == Enum.PlayerInteractionType.Banker then
             local Popup, Matrix = Bank:Create();
             Popup:SetShown(true)
+            local _B = Backpack:Create();
+            _B:ClearAllPoints();
+            _B:SetPoint("TOPLEFT", Popup, "TOPRIGHT", 0, 0)
+            _G.OpenAllBags(Popup)
         end
     end)
     _E:AddListener('PLAYER_INTERACTION_MANAGER_FRAME_HIDE',function(type)
         if type == Enum.PlayerInteractionType.Banker then
             local Popup, Matrix = Bank:Create();
             Popup:SetShown(false)
+            _G.CloseAllBags(Popup)
         end
     end)
     _D:replace(PlayerInteractionFrameManager, 'ShowFrame', function(manager, type)
-        -- Enum.PlayerInteractionType.GuildBanker
-        -- Enum.PlayerInteractionType.VoidStorageBanker
         return type ~= Enum.PlayerInteractionType.Banker
     end)
     _D:replace(PlayerInteractionFrameManager, 'HideFrame', function(manager, type)
-        -- Enum.PlayerInteractionType.GuildBanker
-        -- Enum.PlayerInteractionType.VoidStorageBanker
         return type ~= Enum.PlayerInteractionType.Banker
     end)
-    
-    do
-        local Popup, Matrix = Backpack:Create();
-        if not Popup:IsUserPlaced() then
-            Popup:SetPoint("TOPRIGHT", -300, -60)
-        end
-        Popup:SetScript('OnShow', function()
-            Backpack:Update();
-        end)
-        _E:AddListener('BAG_UPDATE_DELAYED', function()
-            if Popup:IsShown() then Backpack:Update() end
-        end)
-        _E:AddListener('BAG_UPDATE_COOLDOWN', function()
-            Backpack:Cooldowns()
-        end)
-    end
-    do
-        local Popup, Matrix = Bank:Create();
-        Popup:SetPoint("TOPLEFT", 10, -60)
-        Popup:SetScript('OnHide',function()
-            CloseBankFrame()
-        end)
-        Popup:SetScript('OnShow', function()
-            local _B = Backpack:Create();
-            _B:ClearAllPoints();
-            _B:SetPoint("TOPLEFT", Popup, "TOPRIGHT", 0, 0)
-            _B:Show();
-            Bank:Update();
-        end)
-        _E:AddListener('BAG_UPDATE_DELAYED', function()
-            if Popup:IsShown() then Bank:Update() end
-        end)
-        _E:AddListener('PLAYERREAGENTBANKSLOTS_CHANGED', function(slot)
-            if Popup:IsShown() then
-                Container:UpdateItemButton(REAGENTBANK_CONTAINER, slot)
-            else
-                local bagContainer = Container:GetContainer(REAGENTBANK_CONTAINER)
-                if bagContainer then bagContainer._needUpdate = true end;
-            end
-        end)
-    end
 end
-_E:OnceListener('SPELLS_CHANGED', function()
-    print('Running', InCombatLockdown())
-    if InCombatLockdown() then
-        _E:OnceListener('PLAYER_REGEN_ENABLED', Running)
+do
+    local Popup, Matrix = Backpack:Create()
+    if not Popup:IsUserPlaced() then Popup:SetPoint("TOPRIGHT", -300, -60) end
+    Popup:SetScript('OnShow', function() Backpack:Update(true) end)
+end
+do
+    local Popup, Matrix = Bank:Create()
+    if not Popup:IsUserPlaced() then Popup:SetPoint("TOPLEFT", 10, -60) end
+    Popup:SetScript('OnHide',function() CloseBankFrame() end)
+    Popup:SetScript('OnShow', function()
+        Bank:Update(true);
+    end)
+end
+_E:AddListener('BAG_UPDATE', function(bagID) 
+    Container:PerUpdateContainer(bagID) 
+end)
+_E:AddListener('BAG_UPDATE_DELAYED', function() 
+    Backpack:Update()
+    Bank:Update()
+end)
+_E:AddListener('PLAYERREAGENTBANKSLOTS_CHANGED', function(slot)
+    local Popup = Bank:Create()
+    if Popup:IsShown() then
+        Container:UpdateItemButton(REAGENTBANK_CONTAINER, slot)
     else
-        Running()
+        Container:PerUpdateContainer(REAGENTBANK_CONTAINER)
     end
 end)
+_E:OnceListener('SPELLS_CHANGED', function() 
+    print('SPELLS_CHANGED')
+    -- _E:AddListener('BAG_UPDATE_COOLDOWN', function()
+    --     Backpack:Cooldowns()
+    --     Bank:Cooldowns()
+    -- end)
+    Running()
+ end)
 
--- -- 搜索、排序后倒查背包>设置忽略直到背包有空格>设置为倒序>再次排序
+
+
+
+-- -- 搜索
 -- -- 配置：顺序、内容、忽略
 -- -- 统计：资金、背包
 -- -- -- banking frames

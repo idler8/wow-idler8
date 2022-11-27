@@ -35,13 +35,12 @@ function Backpack:Iterator()
         return bag;
     end
 end
-function Backpack:CreateFrame()
+function Backpack:Initialize()
     local Popup = CreateFrame("Frame", "_Container_Backpack", UIParent, "BackdropTemplate");
     Popup:SetBackdrop(BACKDROP_TUTORIAL_16_16)
     Popup:SetFrameStrata('HIGH')
     Popup:ClearAllPoints()
     Popup:Hide()
-    tinsert(_G.UISpecialFrames, "_Container_Backpack")
     _F:Movable(Popup);
     _F:Closable(Popup):SetPoint("TOPRIGHT", -6, -6)
     Sortable(Popup):SetPoint("TOPLEFT", 4, -4)
@@ -49,13 +48,6 @@ function Backpack:CreateFrame()
     local Matrix = CreateFrame('Frame', nil, Popup);
     Matrix:SetAllPoints();
     Matrix:SetPoint("TOPLEFT", 8, -30);
-    function Backpack:CreateFrame()
-        return Popup, Matrix
-    end
-    return Backpack:CreateFrame()
-end
-function Backpack:Initialize()
-    local Popup, Matrix = Backpack:CreateFrame()
     for bagID in self:Iterator() do
         local bagContainer = Container:CreateContainer(bagID)
         bagContainer:SetParent(Matrix);
@@ -63,20 +55,25 @@ function Backpack:Initialize()
     end
     return Popup, Matrix;
 end
-function Backpack:Update()
-    local Popup, Matrix = self:Create();
-    if self:CheckContainers() then 
+local _needResise = true
+function Backpack:Update(inShown)
+    if not inShown then _needResise = self:CheckContainers(); end
+    local Popup = self:Create();
+    if inShown or Popup:IsShown() then
+        self:UpdateContainers(inShown)
+        if not _needResise then return end;
         local width, height = self:Resize(10, true);
         Popup:SetSize(width + 8 * 2 - 3, height + 8 * 2 - 3 + 24);
+        _needResise = false
+    else
+        for bagID in self:Iterator() do self:StorageContainer(bagID) end
     end
-    return Popup;
 end
 function Backpack:Cooldowns()
-    if self:Create():IsShown() then 
-        for bagID in self:Iterator() do
-            if Container:GetContainer(bagID):IsShown() then
-                Container:UpdateCooldowns(bagID)
-            end
+    if not self:Create():IsShown() then return end
+    for bagID in self:Iterator() do
+        if Container:GetContainer(bagID):IsShown() then
+            Container:UpdateCooldowns(bagID)
         end
     end
 end
