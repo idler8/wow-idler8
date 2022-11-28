@@ -150,3 +150,14 @@ function Container:GetSize(Instance, max, reverse)
     print('GetSize',width, height)
     return width, height
 end
+function Container:UpdateCooldowns(bagID)
+    local bagContainer = self:GetContainer(bagID)
+    if not bagContainer:IsShown() then return end;
+    local itemButtons = bagContainer._itemButtons;
+    for slot = 1, bagContainer._slotNumber do
+        local item = itemButtons[slot]
+        local info = C_Container.GetContainerItemInfo(item:GetBagID(), item:GetID());
+        local texture = info and info.iconFileID;
+        item:UpdateCooldown(texture)
+    end
+end

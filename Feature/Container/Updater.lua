@@ -68,6 +68,10 @@ _E:AddListener('BAG_UPDATE_DELAYED', function()
     Backpack:Update(true) -- 打开则更新元素，未打开则更新数据
     Bank:Update() -- 打开则更新元素，未打开则更新数据
 end)
+_E:AddListener('BAG_UPDATE_COOLDOWN', function() 
+    Backpack:Cooldowns()
+    Bank:Cooldowns()
+end)
 _E:AddListener('BAG_UPDATE', function(bagID) 
     Container:PerUpdateContainer(bagID) -- 标记 元素可以更新、数据可以更新
 end)
@@ -91,8 +95,3 @@ do
         Bank:Show()
     end)
 end
-
--- 数据更新 -- 生成包组 -- 循环包组 -- 读取数量 -- 记录数量 -- 整理元素  -- 设定ID（不在战斗） -- 循环元素 -- 读取信息 -- 记录信息 -- 缩放框架（开着） -- 渲染纹理（开着）
--- 打开框架 -- 缩放框架 - 渲染纹理
--- 脱离战斗 -- 设定ID
-

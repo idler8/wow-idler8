@@ -91,11 +91,9 @@ function Backpack:Create()
     function Backpack:Create() return Popup, Matrix end
     return Popup, Matrix;
 end
--- function Backpack:Cooldowns()
---     if not self:Create():IsShown() then return end
---     for bagID in self:Iterator() do
---         if Container:GetContainer(bagID):IsShown() then
---             Container:UpdateCooldowns(bagID)
---         end
---     end
--- end
+function Backpack:Cooldowns()
+    if not self:Create():IsShown() then return end
+    for bagID in self:Iterator() do
+        Container:UpdateCooldowns(bagID)
+    end
+end
