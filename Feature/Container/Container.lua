@@ -98,7 +98,7 @@ function Container:ItemUpdate(itemButton)
     local noValue = info and info.hasNoValue;
     local itemID = info and info.itemID;
     local isBound = info and info.isBound;
-    local questInfo = C_Container.GetContainerItemQuestInfo(bagID, itemButton:GetID());
+    local questInfo = C_Container.GetContainerItemQuestInfo(bagID, slotID);
     local isQuestItem = questInfo.isQuestItem;
     local questID = questInfo.questID;
     local isActive = questInfo.isActive;
