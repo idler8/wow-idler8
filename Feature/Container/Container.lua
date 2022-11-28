@@ -1,141 +1,93 @@
 local ADDON_NAME, Core = ...
-local _F = Core:Lib('Frame');
-local _D = Core:Lib('DB');
+local _F = Core:Lib('Frame')
 local Container = Core:Lib('Container')
 local Storage = Core:Lib('Container.Storage')
-local bagContainers = {};
 local pool = CreateFramePool('ItemButton', nil, "ContainerFrameItemButtonTemplate");
+
+local bagContainers = {};
 function Container:CreateContainer(bagID)
+    print('CreateContainer', bagID)
     local bagContainer = CreateFrame("Frame")
     bagContainer._bagID = bagID;
     bagContainer._slotNumber = 0;
-    bagContainer._needUpdate = true;
+    bagContainer._needUpdate = 2;
     bagContainer._needFinish = true;
     bagContainer._itemButtons = {};
     bagContainers[bagID] = bagContainer
     return bagContainer;
 end
 function Container:GetContainer(bagID)
-    return bagContainers[bagID]
+    return bagContainers[bagID] or Container:CreateContainer(bagID)
 end
 function Container:PerUpdateContainer(bagID)
-    local bagContainer = self:GetContainer(bagID, true);
-    if bagContainer then bagContainer._needUpdate = true end;
+    Container:GetContainer(bagID)._needUpdate = 2;
 end
-function Container:UpdateItemButton(bagID, slot)
-    local bagContainer = self:GetContainer(bagID)
-    local itemButtons = bagContainer._itemButtons;
-    self:ItemUpdate(itemButtons[slot])
-end
-function Container:StorageContainer(bagID)
-    Storage:UpdateContainer(bagID)
-end
-function Container:UpdateContainer(bagID)
-    local bagContainer = self:GetContainer(bagID)
-    if not bagContainer._needUpdate then return end;
-    local itemButtons = bagContainer._itemButtons;
-    for slot = 1, bagContainer._slotNumber do
-        self:ItemUpdate(itemButtons[slot])
-    end
-    bagContainer._needUpdate = false
-    return true
-end
-function Container:UpdateContainers(inShown)
-    for bagID in self:Iterator() do 
-        if not self:UpdateContainer(bagID) and not inShown then
-            self:StorageContainer(bagID)
-        end
-    end
-end
-function Container:CheckContainer(bagID)
-    local bagContainer = self:GetContainer(bagID)
+function Container:CheckContainer(bagContainer)
+    local bagID = bagContainer._bagID
+    local beforeChange = bagContainer._slotNumber;
     local slotNumber = C_Container.GetContainerNumSlots(bagID)
-    Storage:UpdateSlotNumber(bagID, slotNumber)
-    if slotNumber == bagContainer._slotNumber then return false, false end;
+    if slotNumber == beforeChange then return end;
+    bagContainer._slotNumber = slotNumber;
+    Storage:UpdateSlotNumber(bagID, slotNumber);
+    if  slotNumber > beforeChange then bagContainer._needFinish = true end
     local itemButtons = bagContainer._itemButtons;
-    for slot = slotNumber + 1, bagContainer._slotNumber do
+    for slot = slotNumber + 1, beforeChange do
         if itemButtons[slot] then
             pool:Release(itemButtons[slot])
             itemButtons[slot] = nil
         end
     end
-    for slot = bagContainer._slotNumber + 1, slotNumber do
+    for slot = beforeChange + 1, slotNumber do
         local item = pool:Acquire();
-        bagContainer._needFinish = true
-        item._slotID = slot;
         item:SetParent(bagContainer)
         item:ClearAllPoints();
         item:Show();
+        item._slotID = slot;
         itemButtons[slot] = item;
     end
-    local needFinish = slotNumber > bagContainer._slotNumber
-    bagContainer._slotNumber = slotNumber;
-    return true, needFinish;
+    return true
 end
-function Container:CheckContainers()
-    local needResize = false
-    for bagID in self:Iterator() do
-        local bagContainer = self:GetContainer(bagID)
-        local _needResize, _needFinish = Container:CheckContainer(bagID)
-        if _needResize then needResize = true end
-        if _needFinish then
-            _F:SecureSetID(bagContainer, bagContainer._bagID)
-            local itemButtons = bagContainer._itemButtons;
-            for slot = 1, bagContainer._slotNumber do
-                _F:SecureSetID(itemButtons[slot], itemButtons[slot]._slotID)
-            end
-        end;
-    end
-    return needResize;
+local global_lockdown = true
+function Container:UpdateLockdown()
+    global_lockdown = InCombatLockdown()
 end
-function Container:UpdateCooldowns(bagID)
-    local bagContainer = self:GetContainer(bagID)
+function Container:FinishContainer(bagContainer)
+    if global_lockdown then return end
+    if not bagContainer._needFinish then return end
+    local bagID = bagContainer._bagID
+    local slotNumber = bagContainer._slotNumber;
     local itemButtons = bagContainer._itemButtons;
-    for slot = 1, bagContainer._slotNumber do
-        local item = itemButtons[slot]
-        local info = C_Container.GetContainerItemInfo(item:GetBagID(), item:GetID());
-        local texture = info and info.iconFileID;
-        item:UpdateCooldown(texture)
+    _F:SecureSetID(bagContainer, bagID)
+    for slotID = 1, slotNumber do
+        local itemButton = itemButtons[slotID]
+        _F:SecureSetID(itemButton, slotID)
+    end
+    bagContainer._needFinish = nil;
+end
+function Container:UpdateContainer(bagContainer)
+    local bagID = bagContainer._bagID;
+    local slotNumber = bagContainer._slotNumber;
+    local itemButtons = bagContainer._itemButtons;
+    for slotID = 1, slotNumber do
+        local info = C_Container.GetContainerItemInfo(bagID, slotID)
+        local itemButton = itemButtons[slotID]
+        local info = Container:ItemUpdate(itemButton)
+        Storage:UpdateItemInfo(bagID, slotID, info)
     end
 end
-local function ItemIterator(max, reverse)
-    if reverse then
-        return max, 1, -1;
-    else
-        return 1, max;
+function Container:StorageContainer(bagContainer)
+    local bagID = bagContainer._bagID;
+    local slotNumber = bagContainer._slotNumber;
+    for slotID = 1, slotNumber do
+        local info = C_Container.GetContainerItemInfo(bagID, slotID)
+        Storage:UpdateItemInfo(bagID, slotID, info)
     end
-end
-function Container:Resize(max, reverse)
-    local size, inline, x, y = 37 + 2, max or 10, 0, 0
-    for bagID in self:Iterator() do
-        local bagContainer = self:GetContainer(bagID)
-        if bagContainer:IsShown() then
-            local itemButtons = bagContainer._itemButtons
-            if reverse then 
-                for slot = bagContainer._slotNumber, 1, -1 do
-                    if x >= inline then y = y + 1; x = 0; end
-                    itemButtons[slot]:SetPoint("TOPLEFT", x * size, - y * size)
-                    x = x + 1
-                end
-            else
-                for slot = 1, bagContainer._slotNumber do
-                    if x >= inline then y = y + 1; x = 0; end
-                    itemButtons[slot]:SetPoint("TOPLEFT", x * size, - y * size)
-                    x = x + 1
-                end
-            end
-        end
-    end
-    y = y + 1
-    local width = (y > 0 and inline * size or x * size)
-    local height = y * size
-    return width, height
 end
 function Container:ItemUpdate(itemButton)
     if not itemButton then return end
-    local bagID = itemButton:GetParent():GetID();
-    local slotID = itemButton:GetID()
-    local info = Storage:UpdateItemInfo(bagID, slotID)
+    local bagID = itemButton:GetParent()._bagID;
+    local slotID = itemButton._slotID;
+    local info = C_Container.GetContainerItemInfo(bagID, slotID)
     local texture = info and info.iconFileID;
     local itemCount = info and info.stackCount;
     local locked = info and info.isLocked;
@@ -166,16 +118,35 @@ function Container:ItemUpdate(itemButton)
     itemButton:SetReadable(readable);
     itemButton:CheckUpdateTooltip(tooltipOwner);
     itemButton:SetMatchesSearch(not isFiltered);
-    if itemButton:CheckForTutorials(not isFiltered and shouldDoTutorialChecks, itemID) then
-        shouldDoTutorialChecks = false;
+    -- if itemButton:CheckForTutorials(not isFiltered and shouldDoTutorialChecks, itemID) then
+    --     shouldDoTutorialChecks = false;
+    -- end
+    return info
+end
+function Container:GetSize(Instance, max, reverse)
+    local size, inline, x, y = 37 + 2, max or 10, 0, 0
+    for bagID in Instance:Iterator() do
+        local bagContainer = Container:GetContainer(bagID)
+        if bagContainer:IsShown() then
+            local itemButtons = bagContainer._itemButtons
+            if reverse then 
+                for slot = bagContainer._slotNumber, 1, -1 do
+                    if x >= inline then y = y + 1; x = 0; end
+                    itemButtons[slot]:SetPoint("TOPLEFT", x * size, - y * size)
+                    x = x + 1
+                end
+            else
+                for slot = 1, bagContainer._slotNumber do
+                    if x >= inline then y = y + 1; x = 0; end
+                    itemButtons[slot]:SetPoint("TOPLEFT", x * size, - y * size)
+                    x = x + 1
+                end
+            end
+        end
     end
+    y = y + 1
+    local width = (y > 0 and inline * size or x * size)
+    local height = y * size
+    print('GetSize',width, height)
+    return width, height
 end
-function Container:Create()
-    local anyValues = {self:Initialize()}
-    function self:Create() return unpack(anyValues) end
-    return self:Create();
-end
-local function iterator() end
-function Container:Iterator() return iterator end
-function Container:Update() return end
-function Container:Initialize() return  end;

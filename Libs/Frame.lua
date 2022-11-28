@@ -22,6 +22,7 @@ Frame.HIDDEN = CreateFrame('Frame');
 Frame.HIDDEN:Hide();
 local Secure = CreateFrame("FRAME", nil, nil, "SecureHandlerBaseTemplate")
 function Frame:SecureSetID(frame, id)
+    if frame:GetID() == id then return end;
     Secure:SetFrameRef("frame", frame)
     Secure:Execute(string.format("self:GetFrameRef('frame'):SetID(%d)",id))
 end

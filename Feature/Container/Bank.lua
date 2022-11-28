@@ -43,7 +43,33 @@ function Backpack:Iterator()
         return bag;
     end
 end
-function Backpack:Initialize()
+function Backpack:Update()
+    local Popup = self:Create();
+    local isVisible = Popup:IsShown()
+    if not isVisible then return end;
+    self:Show()
+end
+function Backpack:Show()
+    for bagID in self:Iterator() do
+        local bagContainer = Container:GetContainer(bagID)
+        if bagContainer._needUpdate == 2 then
+            bagContainer._needUpdate = 0
+            if Container:CheckContainer(bagContainer) then self._needResize = true end
+            Container:FinishContainer(bagContainer);
+            Container:UpdateContainer(bagContainer)
+        end
+    end
+    if not self._needResize then return end
+    self._needResize = false
+    local width, height = Container:GetSize(self, 24, true)
+    self:Create():SetSize(width + 8 * 2 - 3, height + 8 * 2 - 3 + 24);
+end
+function Backpack:Finish()
+    for bagID in self:Iterator() do
+        Container:FinishContainer(Container:GetContainer(bagID));
+    end
+end
+function Backpack:Create()
     local Popup = CreateFrame("Frame", "_Container_Bank", UIParent, "BackdropTemplate");
     Popup:SetBackdrop(BACKDROP_TUTORIAL_16_16)
     Popup:SetFrameStrata('HIGH')
@@ -57,20 +83,19 @@ function Backpack:Initialize()
     Matrix:SetAllPoints();
     Matrix:SetPoint("TOPLEFT", 8, -30);
     for bagID in self:Iterator() do
-        local bagContainer = Container:CreateContainer(bagID)
+        local bagContainer = Container:GetContainer(bagID)
         bagContainer:SetParent(Matrix);
         bagContainer:SetAllPoints();
+        bagContainer:Show()
     end
+    function Backpack:Create() return Popup, Matrix end
     return Popup, Matrix;
 end
-
-function Backpack:Update(inShown)
-    local Popup = self:Create()
-    if inShown or Popup:IsShown() then
-        local _needResise = self:CheckContainers();
-        self:UpdateContainers(false)
-        if not _needResise then return end;
-        local width, height = self:Resize(24, true);
-        Popup:SetSize(width + 8 * 2 - 3, height + 8 * 2 - 3 + 24);
-    end
-end
+-- function Backpack:Cooldowns()
+--     if not self:Create():IsShown() then return end
+--     for bagID in self:Iterator() do
+--         if Container:GetContainer(bagID):IsShown() then
+--             Container:UpdateCooldowns(bagID)
+--         end
+--     end
+-- end
