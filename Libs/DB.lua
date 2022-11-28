@@ -25,6 +25,9 @@ function DB:Account()
      if not iDB.Accounts[key] then
           iDB.Accounts[key] = { server = server, faction = faction, name = name, bags={}, slots={} }
      end
+     function DB:Account()
+          return iDB.Accounts[key]
+     end
      return iDB.Accounts[key]
 end
 function DB:Accounts()

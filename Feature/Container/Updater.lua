@@ -65,8 +65,8 @@ _E:OnceListener('SPELLS_CHANGED', Finish)
 
 _E:AddListener('BAG_UPDATE_DELAYED', function() 
     Container:UpdateLockdown()
-    Backpack:Update(true) -- 打开则更新元素，未打开则更新数据
-    Bank:Update() -- 打开则更新元素，未打开则更新数据
+    Backpack:Update()
+    Bank:Update()
 end)
 _E:AddListener('BAG_UPDATE_COOLDOWN', function() 
     Backpack:Cooldowns()

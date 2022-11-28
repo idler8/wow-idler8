@@ -3,11 +3,16 @@ local _D = Core:Lib('DB')
 local _E = Core:Lib('Event')
 local Storage = Core:Lib('Container.Storage')
 
+function Storage:GetContainer(bagID)
+    local bags = _D:Account().bags;
+    if not bags[bagID] then bags[bagID] = {slotNumber = 0, itemIDs = {}, itemCounts = {}} end
+    return bags[bagID]
+end
 function Storage:UpdateSlotNumber(bagID, slotNumber)
-    _D:Account().bags[bagID].slotNumber = slotNumber
+    Storage:GetContainer(bagID).slotNumber = slotNumber
 end
 function Storage:UpdateItemInfo(bagID, slotID, info)
-    local bag = _D:Account().bags[bagID]
+    local bag = Storage:GetContainer(bagID)
     local itemIDs = bag.itemIDs;
     local itemCounts = bag.itemCounts;
     if info and info.itemID then

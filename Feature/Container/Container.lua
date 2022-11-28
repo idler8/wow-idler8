@@ -6,7 +6,6 @@ local pool = CreateFramePool('ItemButton', nil, "ContainerFrameItemButtonTemplat
 
 local bagContainers = {};
 function Container:CreateContainer(bagID)
-    print('CreateContainer', bagID)
     local bagContainer = CreateFrame("Frame")
     bagContainer._bagID = bagID;
     bagContainer._slotNumber = 0;
@@ -29,7 +28,7 @@ function Container:CheckContainer(bagContainer)
     if slotNumber == beforeChange then return end;
     bagContainer._slotNumber = slotNumber;
     Storage:UpdateSlotNumber(bagID, slotNumber);
-    if  slotNumber > beforeChange then bagContainer._needFinish = true end
+    if slotNumber > beforeChange then bagContainer._needFinish = true end
     local itemButtons = bagContainer._itemButtons;
     for slot = slotNumber + 1, beforeChange do
         if itemButtons[slot] then
@@ -147,7 +146,6 @@ function Container:GetSize(Instance, max, reverse)
     y = y + 1
     local width = (y > 0 and inline * size or x * size)
     local height = y * size
-    print('GetSize',width, height)
     return width, height
 end
 function Container:UpdateCooldowns(bagID)
