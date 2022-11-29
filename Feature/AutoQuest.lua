@@ -24,11 +24,18 @@ function Quest:Select()
     end
 end
 function Quest:Greeting()
-    if GetNumActiveQuests() > 0 then
-        return SelectActiveQuest(1)
+    local infoActiveLen = GetNumActiveQuests()
+    for i = 1, infoActiveLen do
+        if C_QuestLog.IsComplete(GetActiveQuestID(i)) then
+            return SelectActiveQuest(i)
+        end
     end
-    if GetNumAvailableQuests() > 0 then
-        return SelectAvailableQuest(1)
+    local infoAvailableLen = GetNumAvailableQuests()
+    for i = 1, infoActiveLen do
+        local questID = select(5, GetAvailableQuestInfo(i))
+        if not Black:IsFilter(questID) then
+            return SelectAvailableQuest(i)
+        end
     end
 end
 
