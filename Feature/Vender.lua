@@ -20,6 +20,21 @@ function Vender:SellAllItems(filter, unsafe)
         end
     end
 end
+function Vender:HasEffect(id)
+    local tooltipData = C_TooltipInfo.GetItemByID(id)
+    for _, line in ipairs(tooltipData.lines) do
+        for i, arg in ipairs(line.args) do
+            if arg.stringVal then
+                if string.find(arg.stringVal,'使用：') then
+                    return true
+                end
+                if string.find(arg.stringVal,'装备：') then
+                    return true
+                end
+            end
+        end	
+    end
+end
 function Vender:Safe(bag, slot)
     local id = C_Container.GetContainerItemID(bag, slot)
     if not id then return false end;
@@ -30,10 +45,10 @@ function Vender:Safe(bag, slot)
     if Black:IsFilter(itemInfo.itemID) then return false end; -- 被过滤
     if itemInfo.quality == Enum.ItemQuality.Poor then return true end; -- 是垃圾
     if not itemInfo.isBound then return false end; -- 未绑定
-    -- TODO 过滤存在无需使用即有特效的物品？ 绑定到黑名单
     if IsArtifactRelicItem(itemInfo.itemID) then return true end; -- 是军团神器
     if IsEquippableItem(itemInfo.itemID) then
-        if IsUsableItem(itemInfo.itemID) then return false end; -- 可使用
+        print(itemInfo.hyperlink,Vender:HasEffect(id) )
+        if Vender:HasEffect(id) then return false end;
         if C_Container.GetContainerItemEquipmentSetInfo(bag, slot) then return false end; -- 被收藏
         local specTable = GetItemSpecInfo(itemInfo.itemID)
         if specTable and #specTable == 0 then return true end;  -- 职业区分且非本职业可用
